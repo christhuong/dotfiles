@@ -63,15 +63,24 @@ Plug 'mhinz/vim-signify'
 " Require npm install --global import-js
 Plug 'galooshi/vim-import-js'
 
+" auto pairs
+Plug 'jiangmiao/auto-pairs'
+
 Plug 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
   \ 'for': ['javascript', 'css', 'json', 'scss'] }
+
+" Use release branch (recommend)
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+Plug 'caenrique/nvim-toggle-terminal'
 
 call plug#end()
 
 let g:LanguageClient_serverCommands = {
     \ 'reason': ['~/.config/nvim/reason-language-server.exe'],
     \ 'javascript': ['javascript-typescript-stdio'],
+    \ 'typescript': ['javascript-typescript-stdio'],
     \ 'ruby': ['~/.rbenv/shims/solargraph', 'stdio'],
     \ }
 
@@ -118,7 +127,7 @@ nnoremap cP :let @* = expand("%:p")<CR>
 " Git
 noremap <leader>gs :Gstatus<cr>
 noremap <leader>gb :Gblame<cr>
-noremap <leader>gd :Gdiff<cr>
+" noremap <leader>gd :Gdiff<cr>
 noremap <leader>gw :Gwrite<cr>
 noremap <leader>gc :Gcommit<cr>
 noremap <leader>gu :Gpull<cr>
@@ -130,12 +139,32 @@ nmap <leader>j <Plug>(easymotion-overwin-w)
 
 " Import current word
 nmap <leader>i :ImportJSFix<cr>
-nmap <leader>j :ImportJSWord<cr>
-nmap <leader>g :ImportJSGoto<cr>
+nmap <leader>ii :ImportJSWord<cr>
+nmap gd :ImportJSGoto<cr>
 
 " ale
 nmap <leader>e :ALENext<CR>
 nmap <leader>d :ALEPrevious<CR>
+
+nmap <silent> gd <Plug>(coc-definition)
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+" toggle terminal
+tnoremap <expr> <Esc> (&filetype == "fzf") ? "<Esc>" : "<c-\><c-n>"
+nnoremap <silent> <C-z> :ToggleTerminal<Enter>
+tnoremap <silent> <C-z> <C-\><C-n>:ToggleTerminal<Enter>
+set autowriteall
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
+  endif
+endfunction
 
 " AleFix
 let g:ale_linters = {'javascript': ['eslint', 'flow'], 'ruby': ['rubocop']}
@@ -154,6 +183,7 @@ let g:NERDTreeDisablePatternMatchHighlight = 1
 let g:NERDTreeSyntaxEnabledExtensions = ['rb', 'js', 'html', 'haml', 'css', 'erb', 'jsx', 'scss']
 let g:NERDTreeLimitedSyntax = 1
 let g:NERDTreeHighlightCursorline = 0
+let g:NERDTreeShowHidden=1
 
 " Vim configs
 syntax on
@@ -198,8 +228,8 @@ let g:moonlight_terminal_italics=1
 " this clears the git changes gutter background
 highlight clear SignColumn
 
-" change current line number highlight color
-highlight CursorLineNr guifg=DarkGrey
+" " change current line number highlight color
+" highlight CursorLineNr guifg=DarkGrey
 
 if (has("termguicolors"))
  set termguicolors
